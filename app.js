@@ -16,7 +16,8 @@ import { Gpio } from "onoff";
 
 // variables
 
-const dataPollingInterval = 1000; // 1 second
+const minsPerDataPoint = 5;
+const dataPollingInterval = 1000 * 60 * minsPerDataPoint;
 
 // functions
 
@@ -72,29 +73,29 @@ const renderDisplay = (state) => {
   switch (state.display.mode) {
     case "DEFAULT":
       display.setCursor(1, 1);
-      display.writeString(font, 1, 'Water Temp', 1, true);
-      display.setCursor(1, 10);
+      display.writeString(font, 2, 'Water Temp', 1, true);
+      display.setCursor(1, 15);
       display.writeString(
         font,
         3,
-        `${formatFloat(state.data.temperature_water)}c°`,
+        `${formatFloat(state.data.temperature_water)}°c`,
         1,
         true
       );
       break;
     case "ROOM":
       display.setCursor(1, 1);
-      display.writeString(font, 1, "Room Conditions", 1, true);
-      display.setCursor(1, 10);
+      display.writeString(font, 2, "Room Conditions", 1, true);
+      display.setCursor(1, 15);
       display.writeString(
         font,
-        1,
-        `${formatFloat(state.data.temperature_room)}c°`,
+        2,
+        `${formatFloat(state.data.temperature_room)}°c`,
         1,
         true
       );
-      display.setCursor(1, 20);
-      display.writeString(font, 1, `${formatFloat(state.data.humidity_room)}%`, 1, true);
+      display.setCursor(1, 30);
+      display.writeString(font, 2, `${formatFloat(state.data.humidity_room)}%`, 1, true);
       break;
     case "DATA":
       display.setCursor(1, 1);
