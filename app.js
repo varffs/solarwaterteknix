@@ -55,14 +55,14 @@ const initialState = {
   }
 };
 
-// setup display states map
+// setup display states array map
 
-const displayStates = {
-  DEFAULT,
-  ROOM,
-  DATA,
-  EGG1,
-};
+const displayStates = [
+  "DEFAULT",
+  "ROOM",
+  "DATA",
+  "EGG1",
+];
 
 // render function for the display
 
