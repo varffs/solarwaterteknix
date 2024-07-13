@@ -5,14 +5,14 @@ const { configureStore, createListenerMiddleware } = pkg;
 
 // include io, sensors and display libraries
 
-const i2c = require("i2c-bus");
+import i2c from "i2c-bus";
 
-const oled = require("oled-i2c-bus");
-const font = require("oled-font-5x7");
+import oled from "oled-i2c-bus";
+import font from "oled-font-5x7";
 
-const ds18b20 = require("ds18b20");
+import ds18b20 from "ds18b20";
 
-const Gpio = require("onoff").Gpio;
+import { Gpio } from "onoff";
 
 // variables
 
