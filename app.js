@@ -14,6 +14,11 @@ import ds18b20 from "ds18b20";
 
 import { Gpio } from "onoff";
 
+// include misc
+
+import pngparse from "pngparse";
+const egg1FilePath = "./assets/egg1.png";
+
 // variables
 
 const minsPerDataPoint = 5;
@@ -74,7 +79,7 @@ const renderDisplay = (state) => {
     case "DEFAULT":
       display.setCursor(1, 1);
       display.writeString(font, 2, 'Water Temp', 1, true);
-      display.setCursor(1, 15);
+      display.setCursor(1, 30);
       display.writeString(
         font,
         3,
@@ -85,25 +90,26 @@ const renderDisplay = (state) => {
       break;
     case "ROOM":
       display.setCursor(1, 1);
-      display.writeString(font, 2, "Room Conditions", 1, true);
-      display.setCursor(1, 15);
+      display.writeString(font, 2, "Room", 1, true);
+      display.setCursor(1, 30);
       display.writeString(
         font,
         2,
-        `${formatFloat(state.data.temperature_room)}°c`,
+        `${formatFloat(state.data.temperature_room)}°c & ${formatFloat(
+          state.data.humidity_room
+        )}%`,
         1,
         true
       );
-      display.setCursor(1, 30);
-      display.writeString(font, 2, `${formatFloat(state.data.humidity_room)}%`, 1, true);
       break;
     case "DATA":
       display.setCursor(1, 1);
       display.writeString(font, 1, "DATA", 1, true);
       break;
     case "EGG1":
-      display.setCursor(1, 1);
-      display.writeString(font, 1, "EGG1", 1, true);
+      pngparse.parseFile(egg1FilePath, function (err, image) {
+        display.drawBitmap(image.data);
+      });
       break;
     default:
       display.setCursor(1, 1);
