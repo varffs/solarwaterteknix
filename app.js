@@ -203,9 +203,9 @@ let store = configureStore({
 
 // subscribe to store to render the display
 
-store.subscribe(() => {
-  console.log(store.getState());
-});
+// store.subscribe(() => {
+//   console.log(store.getState());
+// });
 
 // setup data polling
 
