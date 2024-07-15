@@ -113,7 +113,7 @@ const renderDisplay = (state) => {
         }
 
         console.log(image);
-        
+
         display.drawBitmap(image.data);
       });
       break;
@@ -253,7 +253,7 @@ button2.watch((err, value) => {
   if (err) {
     console.log(err);
   } else {
-    const state = listenerApi.getState();
+    const state = store.getState();
 
     switch (state.display.mode) {
       case "DEFAULT":
@@ -267,6 +267,7 @@ button2.watch((err, value) => {
         break;
       case "EGG1":
         console.log("You just cracked the egg!");
+        display.invertDisplay(true);
         break;
       default:
         store.dispatch({
