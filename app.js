@@ -21,7 +21,7 @@ const egg1FilePath = "./assets/egg1.png";
 
 // variables
 
-const minsPerDataPoint = 5;
+const minsPerDataPoint = .5;
 const dataPollingInterval = 1000 * 60 * minsPerDataPoint;
 
 // functions
@@ -108,6 +108,12 @@ const renderDisplay = (state) => {
       break;
     case "EGG1":
       pngparse.parseFile(egg1FilePath, function (err, image) {
+        if (err) {
+          console.log(err);
+        }
+
+        console.log(image);
+        
         display.drawBitmap(image.data);
       });
       break;
@@ -147,7 +153,7 @@ function appReducer(state = initialState, action) {
         },
       };
     case "display/next":
-      if (state.display.mode === displayStates.length - 1) {
+      if (displayStates.indexOf(state.display.mode) === displayStates.length - 1) {
         return {
           ...state,
           display: {
@@ -247,7 +253,28 @@ button2.watch((err, value) => {
   if (err) {
     console.log(err);
   } else {
-    console.log("Button 2 pressed");
+    const state = listenerApi.getState();
+
+    switch (state.display.mode) {
+      case "DEFAULT":
+        console.log("Default action");
+        break;
+      case "ROOM":
+        console.log("Room action");
+        break;
+      case "DATA":
+        console.log("Data action");
+        break;
+      case "EGG1":
+        console.log("You just cracked the egg!");
+        break;
+      default:
+        store.dispatch({
+          type: "display/next",
+        });
+        break;
+    }
+    
   }
 });
 
