@@ -57,7 +57,8 @@ const initialState = {
     humidity_room: null,
   },
   display: {
-    mode: "DEFAULT"
+    mode: "DEFAULT",
+    inverted: false,
   }
 };
 
@@ -104,15 +105,37 @@ const renderDisplay = (state) => {
       break;
     case "DATA":
       display.setCursor(1, 1);
-      display.writeString(font, 1, "DATA", 1, true);
+      display.writeString(font, 1, "Data", 1, true);
+      display.setCursor(1, 20);
+      display.writeString(
+        font,
+        1,
+        `Water Temp: ${formatFloat(state.data.temperature_water)}°c`,
+        1,
+        true
+      );
+      display.setCursor(1, 30);
+      display.writeString(
+        font,
+        1,
+        `Room Temp: ${formatFloat(state.data.temperature_room)}°c`,
+        1,
+        true
+      );
+      display.setCursor(1, 40);
+      display.writeString(
+        font,
+        1,
+        `Room Humidity: ${formatFloat(state.data.humidity_room)}%`,
+        1,
+        true
+      );
       break;
     case "EGG1":
       pngparse.parseFile(egg1FilePath, function (err, image) {
         if (err) {
           console.log(err);
         }
-
-        console.log(image);
 
         display.drawBitmap(image.data);
       });
@@ -153,7 +176,10 @@ function appReducer(state = initialState, action) {
         },
       };
     case "display/next":
-      if (displayStates.indexOf(state.display.mode) === displayStates.length - 1) {
+      if (
+        displayStates.indexOf(state.display.mode) ===
+        displayStates.length - 1
+      ) {
         return {
           ...state,
           display: {
@@ -170,7 +196,14 @@ function appReducer(state = initialState, action) {
           mode: displayStates[displayStates.indexOf(state.display.mode) + 1],
         },
       };
-    
+    case "display/invert":
+      return {
+        ...state,
+        display: {
+          ...state.display,
+          inverted: !state.display.inverted,
+        },
+      };
     default:
       return state;
   }
@@ -185,6 +218,15 @@ listenerMiddleware.startListening({
     const state = listenerApi.getState();
     
     renderDisplay(state);
+  },
+});
+
+listenerMiddleware.startListening({
+  type: "display/invert",
+  effect: (action, listenerApi) => {
+    const state = listenerApi.getState();
+
+    display.invertDisplay(state.display.inverted);
   },
 });
 
@@ -236,8 +278,8 @@ const dataPoll = setInterval(() => {
 
 // listen to the button press
 
-const button1 = new Gpio(17, "in", "rising", { debounceTimeout: 10 });
-const button2 = new Gpio(27, "in", "rising", { debounceTimeout: 10 });
+const button1 = new Gpio(17, "in", "rising", { debounceTimeout: 50 });
+const button2 = new Gpio(27, "in", "rising", { debounceTimeout: 50 });
 
 button1.watch((err, value) => {
   if (err) {
@@ -267,7 +309,9 @@ button2.watch((err, value) => {
         break;
       case "EGG1":
         console.log("You just cracked the egg!");
-        display.invertDisplay(true);
+        store.dispatch({
+          type: "display/invert",
+        });
         break;
       default:
         store.dispatch({
