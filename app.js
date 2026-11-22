@@ -8,7 +8,7 @@ import { loadConfig } from "./src/config.js";
 import { appReducer, buttonLeft, buttonRight, setRoomPresent } from "./src/store.js";
 import { renderDisplay } from "./src/render.js";
 import { pollProbe, pollRoom, detectRoom } from "./src/sensors.js";
-import { registerEffects, appStart } from "./src/effects.js";
+import { registerEffects, appStart, shouldRender } from "./src/effects.js";
 import { TOPICS, discoveryMessages, statePayload } from "./src/ha.js";
 import { createLink } from "./src/mqtt-link.js";
 
@@ -36,8 +36,7 @@ registerEffects(listener, {
 
 // Render on any state change that affects the screen.
 listener.startListening({
-  predicate: (a, curr, prev) =>
-    curr !== prev && ["data/", "sensors/", "display/", "link/", "actions/"].some((p) => a.type.startsWith(p)),
+  predicate: shouldRender,
   effect: (_a, api) => renderDisplay(api.getState(), display, { now: Date.now(), egg }),
 });
 // Screen power follows `awake`; invert follows `inverted`.

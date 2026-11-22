@@ -49,12 +49,30 @@ test("ack_confirms_then_idles", async () => {
   stop();
 });
 
+test("render_predicate_includes_tick", async () => {
+  const { shouldRender } = await import("./effects.js");
+  const st = { a: 1 };
+  assert.equal(shouldRender({ type: "display/tick" }, st, st), true);
+  assert.equal(shouldRender({ type: "data/probe" }, st, st), false);
+  assert.equal(shouldRender({ type: "data/probe" }, { a: 2 }, st), true);
+  assert.equal(shouldRender({ type: "push/x" }, { a: 2 }, st), false);
+});
+
+test("press_while_sending_publishes_once", async () => {
+  const { store, published, stop } = setup();
+  store.dispatch(buttonRight(1000));
+  store.dispatch(buttonRight(1001));
+  await wait(1);
+  assert.equal(published.length, 1);
+  stop();
+});
+
 test("two_presses_only_latest_times_out", async () => {
   const { store, fb, published, stop } = setup({ ackTimeoutMs: 40, confirmShowMs: 1000 });
   store.dispatch(buttonRight(1000));
-  await wait(20);
+  await wait(50); // first press has timed out (failed, still shown: confirmShowMs 1000)
   store.dispatch(buttonRight(2000));
-  await wait(30); // first timeout (t≈40) has fired, second (t≈60) not yet
+  await wait(20); // second (t≈90) not yet timed out
   assert.equal(fb().phase, "sending");
   assert.equal(fb().requestId, "2000");
   assert.equal(published.length, 2);

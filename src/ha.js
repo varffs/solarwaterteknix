@@ -9,7 +9,9 @@ export const TOPICS = {
   action: "solarwater/action", // presses → HA event entity
   actionState: (id) => `solarwater/actions/${id}`, // HA → device, retained
   ack: "solarwater/ack", // HA → device, per press
-  haStatus: "homeassistant/status", // HA's own birth/will
+  haStatus: "homeassistant/status", // HA's own birth/will — NOT retained on this install
+  haHello: "solarwater/ha", // HA answers our "online" with "online" here, so a device that
+  // (re)connects after HA's birth still learns HA is up (checked on the broker 2026-11-22)
 };
 
 const DEVICE = {
@@ -63,7 +65,7 @@ export const statePayload = (state) =>
 
 export const pressPayload = (id, requestId) => JSON.stringify({ event_type: id, request_id: requestId });
 
-export const subscriptions = () => [TOPICS.ack, TOPICS.haStatus, ...haActionIds().map(TOPICS.actionState)];
+export const subscriptions = () => [TOPICS.ack, TOPICS.haStatus, TOPICS.haHello, ...haActionIds().map(TOPICS.actionState)];
 
 const json = (s) => {
   try {
@@ -78,6 +80,7 @@ const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 export const incomingToAction = (topic, payload) => {
   const text = String(payload);
   if (topic === TOPICS.haStatus) return text === "online" || text === "offline" ? haStatus(text) : null;
+  if (topic === TOPICS.haHello) return text === "online" ? haStatus("online") : null;
   if (topic === TOPICS.ack) {
     const a = json(text);
     if (!isObj(a) || typeof a.request_id !== "string") return null;

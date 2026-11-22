@@ -2,6 +2,16 @@ import { TOPICS, pressPayload } from "./ha.js";
 import { haActionIds } from "./screens.js";
 import { ackTimeout, clearFeedback, sleep } from "./store.js";
 
+const RENDER_PREFIXES = ["data/", "sensors/", "display/", "link/", "actions/"];
+
+/**
+ * Whether an action should redraw the screen. The minute tick changes no state
+ * (the reducer ignores it) but must redraw, so "NN min left" counts down even
+ * if polling stalls.
+ */
+export const shouldRender = (a, curr, prev) =>
+  a.type === "display/tick" || (curr !== prev && RENDER_PREFIXES.some((p) => a.type.startsWith(p)));
+
 /** Dispatched once at boot so the screen-sleep timer arms without a press. */
 export const appStart = () => ({ type: "app/start" });
 

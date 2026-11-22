@@ -68,14 +68,15 @@ test("ack_not_ok_fails_with_message", () => {
 });
 
 test("late_ack_for_old_request_ignored", () => {
-  const s = run(...haReady, ...toScreen("BOOST"), buttonRight(1000), buttonRight(2000),
+  // first press times out, second is sent, then the first's ack straggles in
+  const s = run(...haReady, ...toScreen("BOOST"), buttonRight(1000), ackTimeout("boost", "1000"), buttonRight(2000),
     ack({ request_id: "1000", ok: true, message: "old" }));
   assert.equal(fb(s).phase, "sending");
   assert.equal(fb(s).requestId, "2000");
 });
 
 test("ack_timeout_only_for_current_request", () => {
-  const base = [...haReady, ...toScreen("BOOST"), buttonRight(1000), buttonRight(2000)];
+  const base = [...haReady, ...toScreen("BOOST"), buttonRight(1000), ackTimeout("boost", "1000"), buttonRight(2000)];
   assert.equal(fb(run(...base, ackTimeout("boost", "1000"))).phase, "sending");
   const s = run(...base, ackTimeout("boost", "2000"));
   assert.equal(fb(s).phase, "failed");
@@ -102,4 +103,17 @@ test("ha_offline_hides_remote_as_live", () => {
   assert.deepEqual(canSend(s, "boost"), { ok: false, reason: "HA offline" });
   assert.deepEqual(canSend(run(...haReady), "boost"), { ok: true });
   assert.deepEqual(canSend(run(...haReady, brokerUp(false)), "boost"), { ok: false, reason: "HA offline" });
+});
+
+test("broker_drop_forgets_ha_status", () => {
+  const s = run(...haReady, brokerUp(false));
+  assert.equal(s.link.ha, "unknown");
+  assert.equal(run(...haReady, brokerUp(false), brokerUp(true)).link.ha, "unknown");
+});
+
+test("press_while_sending_ignored", () => {
+  // An impatient double press must not reach HA as start-then-cancel.
+  const s = run(...haReady, ...toScreen("BOOST"), buttonRight(1000), buttonRight(1500));
+  assert.equal(fb(s).phase, "sending");
+  assert.equal(fb(s).requestId, "1000");
 });

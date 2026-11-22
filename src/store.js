@@ -53,6 +53,9 @@ const pressRight = (state, now) => {
   const action = screenById(state.display.screen)?.action;
   if (!action) return state;
   if (action.type === "local") return runLocal(state, action.id);
+  // Still waiting on HA for the last press: a second one would reach HA as
+  // start-then-cancel. Ignore it until the ack (or its timeout) lands.
+  if (state.actions[action.id]?.feedback.phase === "sending") return state;
   const can = canSend(state, action.id);
   return setFeedback(state, action.id, can.ok
     ? { phase: "sending", requestId: String(now), message: null }
@@ -81,7 +84,9 @@ export function appReducer(state = initialState, action) {
     case "sensors/roomPresent":
       return { ...state, sensors: { ...state.sensors, room_present: action.payload } };
     case "link/broker":
-      return { ...state, link: { ...state.link, broker: action.payload } };
+      // Losing the broker means we've lost sight of HA too; HA re-announces
+      // itself (solarwater/ha) when we come back online.
+      return { ...state, link: { broker: action.payload, ha: action.payload ? state.link.ha : "unknown" } };
     case "link/ha":
       return { ...state, link: { ...state.link, ha: action.payload } };
     case "actions/remote": {

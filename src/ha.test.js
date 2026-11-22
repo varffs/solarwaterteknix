@@ -41,7 +41,7 @@ test("press_payload", () => {
 });
 
 test("subscriptions_cover_ack_ha_and_actions", () => {
-  assert.deepEqual(subscriptions(), ["solarwater/ack", "homeassistant/status", "solarwater/actions/boost"]);
+  assert.deepEqual(subscriptions(), ["solarwater/ack", "homeassistant/status", "solarwater/ha", "solarwater/actions/boost"]);
   assert.equal(TOPICS.actionState("boost"), "solarwater/actions/boost");
 });
 
@@ -73,4 +73,13 @@ test("malformed_incoming_ignored", () => {
   assert.equal(incomingToAction("solarwater/actions/boost", '{"active":false}').payload.remote.available, true);
   // payload may arrive as a Buffer from the mqtt client
   assert.deepEqual(incomingToAction("homeassistant/status", Buffer.from("online")), haStatus("online"));
+});
+
+test("ha_hello_marks_ha_online", () => {
+  // homeassistant/status is not retained on this install (checked 2026-11-22),
+  // so HA answers the device's own "online" with a hello on solarwater/ha.
+  assert.equal(TOPICS.haHello, "solarwater/ha");
+  assert.ok(subscriptions().includes("solarwater/ha"));
+  assert.deepEqual(incomingToAction("solarwater/ha", "online"), haStatus("online"));
+  assert.equal(incomingToAction("solarwater/ha", "nope"), null);
 });

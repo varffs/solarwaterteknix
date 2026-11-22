@@ -45,7 +45,7 @@ test("reconnect_republishes", () => {
   assert.ok(online.every((p) => p.opts.retain === true));
   assert.equal(client.published.filter((p) => p.topic === "homeassistant/event/x/config").length, 2);
   assert.equal(client.subscribed.length, 2);
-  assert.deepEqual(client.subscribed[0], ["solarwater/ack", "homeassistant/status", "solarwater/actions/boost"]);
+  assert.deepEqual(client.subscribed[0], ["solarwater/ack", "homeassistant/status", "solarwater/ha", "solarwater/actions/boost"]);
   assert.deepEqual(actions.map((a) => [a.type, a.payload]), [["link/broker", true], ["link/broker", false], ["link/broker", true]]);
 });
 

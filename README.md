@@ -37,6 +37,7 @@ The device holds no HA credentials.
 | `solarwater/actions/<id>` | → device | retained `{"available", "active", "label", "detail", "reason", "finishes_at"}` |
 | `solarwater/ack` | → device | `{"request_id", "ok", "message"}` |
 | `homeassistant/status` | → device | HA's own birth/will; "HA offline" when not `online` |
+| `solarwater/ha` | → device | HA's hello (`online`) in reply to the device's `online` — HA's birth isn't retained here |
 
 Entities come from MQTT discovery: the button event always; **Tank temperature**
 only with `PROBE_ROLE=tank`; room temperature/humidity only if a BME280 answers
