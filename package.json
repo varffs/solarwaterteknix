@@ -1,23 +1,26 @@
-{ 
+{
   "name": "solarwaterteknix",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "checking on the hot water",
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "VIRTUAL_MODE=true node app.js",
+    "test": "node --test 'src/**/*.test.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/varffs/solarwaterteknix.git"
   },
   "author": "Patrick Best",
   "license": "ISC",
   "homepage": "https://github.com/varffs/solarwaterteknix#readme",
   "dependencies": {
-    "@reduxjs/toolkit": "^1.9.5",
-    "bme280-sensor": "^0.1.7",
-    "ds18b20": "^0.1.0",
-    "i2c-bus": "^5.2.3",
-    "oled-font-5x7": "^1.0.3",
-    "oled-i2c-bus": "^1.0.12",
-    "onoff": "^6.0.3",
+    "@reduxjs/toolkit": "^2.11.2",
+    "dotenv": "^16.4.0",
+    "mqtt": "5.16.1",
+    "piteknix": "github:varffs/piteknix#v0.1.1",
     "pngparse": "^2.0.1"
   }
 }
