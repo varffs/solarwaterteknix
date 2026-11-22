@@ -7,6 +7,10 @@ starting with an emergency immersion **Boost** — without a phone.
 Runs on `oldpi` (Raspberry Pi 1 B+, Node 16) on [piteknix](https://github.com/varffs/piteknix)
 + Redux Toolkit. Develop on the laptop in virtual mode: `npm run dev`
 (keys `1` = left, `2` = right, `d` = dump state, `q` = quit).
+With no `MQTT_URL`, dev mode talks to a pretend broker + Home Assistant
+(`src/fake-ha.js`) that answers like the real automations: `h` takes HA down/up,
+`x` makes it ignore the next press (shows "No answer from HA"). Set
+`MQTT_URL=mqtt://192.168.1.72` only for the end-to-end check against the real HA.
 
 ## Buttons and screens
 
@@ -46,7 +50,7 @@ only with `PROBE_ROLE=tank`; room temperature/humidity only if a BME280 answers
 
 ## Config (`.env`, see `.env.example`)
 
-- `MQTT_URL` — default `mqtt://bigpi.local`; in virtual mode MQTT is off unless set.
+- `MQTT_URL` — default `mqtt://bigpi.local`; in virtual mode the fake HA is used unless set.
 - `PROBE_ID` — DS18B20 id, default `28-0822b1d75b31`.
 - `PROBE_ROLE` — `desk` (default) while oldpi sits on the office desk: the probe
   stays published by oldpi's cron script as `sensor.oldpi_oldpi_air_temp`, which

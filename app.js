@@ -13,7 +13,7 @@ import { TOPICS, discoveryMessages, statePayload } from "./src/ha.js";
 import { createLink } from "./src/mqtt-link.js";
 
 const cfg = loadConfig();
-console.log(`solarwaterteknix starting in ${getMode()} mode (probe role: ${cfg.probeRole}, mqtt: ${cfg.mqttUrl ?? "off"})`);
+console.log(`solarwaterteknix starting in ${getMode()} mode (probe role: ${cfg.probeRole}, mqtt: ${cfg.fakeHa ? "fake HA" : cfg.mqttUrl ?? "off"})`);
 
 // Hardware (piteknix picks real or virtual)
 const probe = await createSensor({ type: "ds18b20", id: cfg.probeId });
@@ -58,11 +58,13 @@ store.dispatch(setRoomPresent(room !== null));
 store.dispatch(appStart());
 renderDisplay(store.getState(), display, { now: Date.now(), egg });
 
-if (cfg.mqttUrl) {
-  const { default: mqtt } = await import("mqtt");
+// Laptop dev without MQTT_URL: a pretend broker + HA (keys: h = HA down/up, x = drop next press).
+const fakeHa = cfg.fakeHa ? (await import("./src/fake-ha.js")).createFakeHa() : null;
+if (cfg.mqttUrl || fakeHa) {
+  const connect = fakeHa ? fakeHa.connect : (await import("mqtt")).default.connect;
   link = createLink({
-    url: cfg.mqttUrl,
-    connect: mqtt.connect,
+    url: cfg.mqttUrl ?? "fake://",
+    connect,
     dispatch: store.dispatch,
     getDiscovery: () => discoveryMessages({ probeRole: cfg.probeRole, roomPresent: room !== null }),
   });
@@ -88,6 +90,15 @@ const tick = setInterval(() => store.dispatch({ type: "display/tick" }), 60_000)
 
 if (isVirtualMode()) {
   setupKeyboardListener({ onDebug: () => console.log(JSON.stringify(store.getState(), null, 2)) });
+  if (fakeHa) {
+    process.stdin.on("keypress", (_s, key) => {
+      if (key?.name === "h") console.log(`fake HA ${fakeHa.toggleOnline() ? "online" : "offline"}`);
+      if (key?.name === "x") {
+        fakeHa.dropNextPress();
+        console.log("fake HA will ignore the next press");
+      }
+    });
+  }
 }
 left.watch(() => store.dispatch(buttonLeft()));
 right.watch(() => store.dispatch(buttonRight(Date.now())));

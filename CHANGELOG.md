@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Dev mode without `MQTT_URL` uses a pretend broker + HA (`src/fake-ha.js`) mirroring the
+  real boost automations; keys `h` (HA down/up) and `x` (ignore next press).
+
 ## 1.0.0 — 2026-11-22
 
 - Rebuilt on piteknix + Redux Toolkit; runs and is tested on the laptop in virtual mode.

@@ -23,3 +23,9 @@ test("rejects_bad_role", () => {
   assert.throws(() => loadConfig({ PROBE_ROLE: "attic" }), /PROBE_ROLE/);
   assert.equal(loadConfig({ PROBE_ROLE: "tank" }).probeRole, "tank");
 });
+
+test("fake_ha_only_in_virtual_without_url", () => {
+  assert.equal(loadConfig({ VIRTUAL_MODE: "true" }).fakeHa, true);
+  assert.equal(loadConfig({ VIRTUAL_MODE: "true", MQTT_URL: "mqtt://x" }).fakeHa, false);
+  assert.equal(loadConfig({}).fakeHa, false);
+});

@@ -17,6 +17,8 @@ export const loadConfig = (env = process.env) => {
     isVirtual,
     // In virtual mode MQTT is opt-in, so a laptop run never touches the real broker by accident.
     mqttUrl: env.MQTT_URL || (isVirtual ? null : "mqtt://bigpi.local"),
+    // ...and talks to a pretend broker + HA instead (src/fake-ha.js).
+    fakeHa: isVirtual && !env.MQTT_URL,
     probeId: env.PROBE_ID || "28-0822b1d75b31",
     probeRole,
     pollMs: 30_000,
